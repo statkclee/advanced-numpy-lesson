@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: 고급 넘파이</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">고급 넘파이</h1></a>
+          <h2 class="subtitle">넘파이 배열 연산작업</h2>
+          <section class="objectives panel panel-warning">
+<div class="panel-heading">
+<h2 id="학습목표"><span class="glyphicon glyphicon-certificate"></span>학습목표</h2>
+</div>
+<div class="panel-body">
+<ul>
+<li>두 배열에 대한 원소별 곱하기와 행렬곱 차이를 설명한다.</li>
+<li>축소 함수(평균, 최소, 최대)를 해당 축을 따라 적용한다.</li>
+<li>넘파이에서 제공하는 함수목록에서 특수 수치해석 알고리즘을 찾아낸다.</li>
+<li>해당 축을 따라 배열을 정렬한다.</li>
+</ul>
+</div>
+</section>
+<p>두 배열 곱셈작업을 수행하면 원소별로 계산된다. 예를 들어, 각 원소에 대해 제곱을 계산하는데, 다음과 같이 계산한다:</p>
+<pre><code>&gt;&gt;&gt; a = np.arange(3)
+&gt;&gt;&gt; a
+array([0, 1, 2])
+&gt;&gt;&gt; b = a * a
+&gt;&gt;&gt; b
+array([0, 1, 4])</code></pre>
+<p>행렬곱은 <code>np.dot</code> 함수를 사용해서 계산된다:</p>
+<pre><code>&gt;&gt;&gt; np.dot(a, a)
+5</code></pre>
+<p>1차원 배열에 대해 동일한 결과를 다음식을 통해 얻을 수 있다:</p>
+<pre><code>&gt;&gt;&gt; np.sum(a * a)
+5</code></pre>
+<h3 id="축을-따라-축소요약">축을 따라 축소요약</h3>
+<p><code>np.sum</code> 함수는 배열 차원갯수에 관계없이 모든 원소를 합한다:</p>
+<pre><code>&gt;&gt;&gt; b = np.arange(9).reshape(3,3)
+&gt;&gt;&gt; b
+array([[0, 1, 2],
+       [3, 4, 5],
+       [6, 7, 8]])
+&gt;&gt;&gt; np.sum(b)
+36</code></pre>
+<p>행만 혹은 열만 따로 떼서 합하고자 한다면, 합하고자 하는 축 인덱스를 전달하면 된다:</p>
+<pre><code>&gt;&gt;&gt; np.sum(b, 0)
+array([ 9, 12, 15])
+&gt;&gt;&gt; np.sum(b, 1)
+array([ 3, 12, 21])</code></pre>
+<p>유사한 다른 축약함수에는 <code>np.min</code>, <code>np.max</code>, <code>np.mean</code> 이 있다:</p>
+<pre><code>&gt;&gt;&gt; np.min(b)
+0
+&gt;&gt;&gt; np.min(b, 0)
+array([0, 1, 2])
+&gt;&gt;&gt; np.min(b, 1)
+array([0, 3, 6])</code></pre>
+<p>각 축에 대한 최소 원소의 색인값도 얻어올 수 있다:</p>
+<pre><code>&gt;&gt;&gt; np.argmin(b, 0)
+array([0, 0, 0])</code></pre>
+<h3 id="정렬">정렬</h3>
+<p>넘파이에는 다양한 정렬 알고리듬이 구현되어 있다. 배열에 원소를 정렬하는데, <code>np.sort</code> 함수를 사용한다:</p>
+<pre><code>&gt;&gt;&gt; a = np.random.rand(4)
+&gt;&gt;&gt; a
+array([ 0.9490829 ,  0.07528673,  0.17463988,  0.95964801])
+&gt;&gt;&gt; np.sort(a)
+array([ 0.07528673,  0.17463988,  0.9490829 ,  0.95964801])</code></pre>
+<p>축약함수와 유사하게, 축을 따라 정렬하는데 축인덱스를 인자로 넣어 전달한다:</p>
+<pre><code>&gt;&gt;&gt; b = a.reshape(2, 2)
+&gt;&gt;&gt; b
+array([[ 0.9490829 ,  0.07528673],
+       [ 0.17463988,  0.95964801]])
+&gt;&gt;&gt; np.sort(b, 0)
+array([[ 0.17463988,  0.07528673],
+       [ 0.9490829 ,  0.95964801]])
+&gt;&gt;&gt; np.sort(b, 1)
+array([[ 0.07528673,  0.9490829 ],
+       [ 0.17463988,  0.95964801]])</code></pre>
+<p><code>np.argsort</code> 메쏘드는 정렬된 배열에 나타난 원소순서를 반환한다:</p>
+<pre><code>&gt;&gt;&gt; np.argsort(a)
+array([1, 2, 0, 3])</code></pre>
+<h3 id="특수-모듈">특수 모듈</h3>
+<p>넘파이에는 수치해석 기본 메쏘드를 구현한 추가 모듈이 제공된다:</p>
+<ul>
+<li><code>np.linalg</code> – 선형대수</li>
+<li><code>np.fft</code> – 고속 푸리에 변환</li>
+<li><code>np.random</code> – 난수 생성기.</li>
+</ul>
+<section class="challenge panel panel-success">
+<div class="panel-heading">
+<h2 id="가장-가까운-원소-찾기"><span class="glyphicon glyphicon-pencil"></span>가장 가까운 원소 찾기</h2>
+</div>
+<div class="panel-body">
+<p>난수(<code>np.random.rand</code> 함수 사용)를 <span class="math inline">\(10 \times 3\)</span> 배열에 넣어 생성한다. 각 행별로, 0.75에 가장 가까운 원소의 행 인텍스를 찾아낸다. <code>np.abs</code>와 <code>np.argmin</code> 메쏘드를 사용한다. 결과는 0에서 2를 갖는 1차원 정수 배열이 된다. <code>np.abs(x-0.75).argmin(1)</code></p>
+</div>
+</section>
+<section class="challenge panel panel-success">
+<div class="panel-heading">
+<h2 id="선형방정식-풀기"><span class="glyphicon glyphicon-pencil"></span>선형방정식 풀기</h2>
+</div>
+<div class="panel-body">
+<p><code>np.linalg.solve</code>를 사용해서 다음에 나오는 선형방정식 시스템을 푼다. 해답을 넣어 검정해본다. <span class="math display">\[2x + 3y = 3\]</span> <span class="math display">\[5x - y = 6\]</span></p>
+</div>
+</section>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/paris-swc/advanced-numpy-lesson">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="http://software-carpentry.org/v5/js/jquery-1.9.1.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>
