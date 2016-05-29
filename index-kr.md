@@ -17,14 +17,15 @@ title: 고급 넘파이(Numpy)
 
 ## 학습 목차
 
-|        국문       |     영문              |
-|------------------|---------------------|
-| 1. [들어가며](00-intro.html)             |  1. [Introduction](00-intro.html) |
-| 2. [넘파이 배열 연산작업](01-operations.html)| 2. [Operations on NumPy arrays](01-operations.html) |
-| 3. [인덱스](02-indexing.html)            | 3. [Indexing](02-indexing.html) |
-| 4. [브로드캐스트](03-broadcasting.html)    | 4. [Broadcasting](03-broadcasting.html) |
-| 5. [배열 컨테이너](04-container.html)      | 5. [Array container](04-container.html) |
-| 6. [실습: K-평균](05-kmeans.html)        | 6. [Case study: K-means](05-kmeans.html) |
+|                        국문            |     영문              |
+|---------------------------------------|-----------------------------------|
+|1. [들어가며](00-intro.html)             |  1. [Introduction](00-intro.html) |
+|2. [넘파이 배열 연산작업](01-operations.html)| 2. [Operations on NumPy arrays](01-operations.html) |
+|3. [인덱스](02-indexing.html)            | 3. [Indexing](02-indexing.html) |
+|4. [브로드캐스트](03-broadcasting.html)    | 4. [Broadcasting](03-broadcasting.html) |
+|5. [배열 컨테이너](04-container.html)      | 5. [Array container](04-container.html) |
+|6. [사례 K-평균](05-kmeans.html)        | 6. [Case study K-means](05-kmeans.html) |
+
  
 ## 추가 학습교재       
 
