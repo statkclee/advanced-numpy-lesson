@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: 고급 넘파이</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">고급 넘파이</h1></a>
+          <h2 class="subtitle">배열 컨테이너</h2>
+          <section class="objectives panel panel-warning">
+<div class="panel-heading">
+<h2 id="학습목표"><span class="glyphicon glyphicon-certificate"></span>학습목표</h2>
+</div>
+<div class="panel-body">
+<p>학습을 한 후에 다음 기능이 학습자에게 장착됩니다:</p>
+<ul>
+<li>배열에 담겨질 수 있는 객체 자료형에 대해 나열할 수 있다.</li>
+<li><code>dtype</code> 개념을 이해하고, 작업중인 데이터에 가장 적합한 <code>dtype</code>을 선택할 수 있다.</li>
+<li>객체 배열이 무엇인지 그리고 언제 생성시킬지 알게 된다.</li>
+<li>배열에 대한 <code>ndim</code>, <code>shape</code>, <code>stride</code> 특성이 무엇인지 설명할 수 있다.</li>
+<li>메모리에 배열의 배치상황을 이해하고, 최적의 배열 성능을 위한 사용법을 익힌다.</li>
+<li>포트란과 C기반 순서 차이를 설명할 수 있다. 기본디폴트 설정도 알게 된다.</li>
+</ul>
+</div>
+</section>
+<h3 id="자료형">자료형</h3>
+<p>(리스트 같은) 파이썬에 내장된 컨테이너와 비교하여 넘파이 배열은 사전에 결정된 자료형 원소만 저장할 수 있다. 배열에 포함된 자료형을 살펴보는데, <code>dtype</code> 속성을 사용한다. 다음 예제 두개를 살펴보자:</p>
+<pre><code>&gt;&gt;&gt; a = np.array([1, 2, 3])
+&gt;&gt;&gt; a.dtype
+dtype(&#39;int64&#39;)
+
+&gt;&gt;&gt; b = np.array([1., 2., 3.])
+&gt;&gt;&gt; b.dtype
+dtype(&#39;float64&#39;)</code></pre>
+<p>첫번째 예제는 숫자가 64-비트(8-바이트) 정수형이고, 두번째 사례는 64-비트 부동소수점 실수다. 넘파이가 자동으로 입력되는 자료형을 탐지하는 기능이 있다. 특수한 자료형은 메모리에 데이터를 좀더 빽빽하게 저장할 수 있는 장점이 있지만, 대부분의 경우 간단히 부동소수점 숫자를 갖고 작업한다.</p>
+<p>배열에 모든 원소는 같은 자료형이 되어야 함에 주의한다. 다른 원소를 갖는 배열을 생성하게 되면, 모든 원소를 나타내는 “가장 범용(most general)” 자료형으로 <strong>형변환(cast)</strong> 된다. 예를 들어, 실수와 정수로 구성된 배열은 부동소수점 자료형을 갖게 된다:</p>
+<pre><code>&gt;&gt;&gt; a = np.array([1., 2])
+dtype(&#39;float64&#39;)</code></pre>
+<p>이조차도 불가능한 경우, 넘파이는 <code>object</code> 객체형을 사용하게 되는데 대문자 <code>'O'</code>로 표현되고, 임의 파이썬 객체(심지어 함수)를 나타내게 된다:</p>
+<pre><code>&gt;&gt;&gt; def f(): pass
+&gt;&gt;&gt; a = np.array([f, f])
+&gt;&gt;&gt; a.dtype
+dtype(&#39;O&#39;)</code></pre>
+<p>파이썬 기능 일부(예를 들어 원소별로 적용되는 함수 <code>np.abs</code>, <code>np.sqrt</code> 등, 혹은 축약함수 <code>np.sum</code>, <code>np.max</code> 등)는 객체 배열에 동작하지 않지만, 익덱스는 여전히 먹힌다.</p>
+<p>다른 길이를 갖는 리스트 다수로 구성되는 배열이 생성될 때, <code>object</code> 자료형은 흔히 마주치는 자료형이 된다:</p>
+<pre><code>&gt;&gt;&gt; np.array([[1], [2, 3]])
+array([[1], [2, 3]], dtype=object)</code></pre>
+<section class="challenge panel panel-success">
+<div class="panel-heading">
+<h2 id="정수-혹은-실수"><span class="glyphicon glyphicon-pencil"></span>정수 혹은 실수?</h2>
+</div>
+<div class="panel-body">
+<p><code>x = np.array([0, 1, 2, 255], dtype=np.uint8)</code> 명령어로 배열을 생성한다. (여기서 <code>uint8</code>은 메모리에 1 바이트, 부호없는 0에서 255 사이 정수를 나타낸다) <span class="math inline">\(x+1\)</span>과 <span class="math inline">\(frac{x}{2}\)</span> 연산작업 후 얻어지는 결과를 설명할 수 있는가? <code>x.astype(float) + 1</code>와 <code>x.astype(float) / 2</code>도 시도해본다.</p>
+</div>
+</section>
+<section class="challenge panel panel-success">
+<div class="panel-heading">
+<h2 id="자료형-1"><span class="glyphicon glyphicon-pencil"></span>자료형</h2>
+</div>
+<div class="panel-body">
+<p>다음 배열에 대한 자료형을 추측해본다. 그리고 나서, 배열을 생성해보고 예측한 것을 검사해보고 <code>dtype</code> 속성을 검사한다.</p>
+<pre><code>a = np.array([[1, 2], 
+              [2, 3]])
+b = np.array([&#39;a&#39;, &#39;b&#39;, &#39;c&#39;])
+c = np.array([1, 2, &#39;a&#39;])
+d = np.array([np.dot, np.array])
+e = np.random.randn(5) &gt; 0
+f = np.arange(5)</code></pre>
+</div>
+</section>
+<section class="challenge panel panel-success">
+<div class="panel-heading">
+<h2 id="복합-자료형"><span class="glyphicon glyphicon-pencil"></span>복합 자료형</h2>
+</div>
+<div class="panel-body">
+<p>넘파이 배열로 저장하려고 하는 것이 이름과 성적점수 목록이라고 가정한다. 다음이 동작하는 <code>dtype</code>을 생성한다. <code>np.dtype</code> 문서를 살펴본다.</p>
+<pre><code>dtype = ?
+np.array([(&#39;Bartosz&#39;, 5), (&#39;Nelle&#39;, 4)], dtype=dtype)</code></pre>
+</div>
+</section>
+<h3 id="메모리-배치">메모리 배치</h3>
+<p>넘파이 배열은 해당 정보내용을 해석하는 방식을 담은 추가 정보를 갖는 메모리 블록에 불과하다. 메모리는 선형 주소공간만 갖기 때문에, 넘파이 배열에는 다차원으로 블록을 배열하는 방법에 대한 추가정보가 필요하다. <code>shape</code>와 <code>strides</code> 속성으로 이런 작업이 수행된다:</p>
+<div class="figure">
+<img src="fig/strides.svg" alt="Shape 와 strides" />
+<p class="caption">Shape 와 strides</p>
+</div>
+<p>상기 예제를 재현해보자. 원소 8개를 갖는 1차원 배열을 먼저 생성시킨다:</p>
+<pre><code>&gt;&gt;&gt; a = np.arange(8, dtype=np.uint8)
+&gt;&gt;&gt; a
+array([0, 1, 2, 3, 4, 5, 6, 7], dtype=uint8)
+&gt;&gt;&gt; a.strides
+(1,)
+&gt;&gt;&gt; a.shape
+(8,)</code></pre>
+<p><code>shape</code> 와 <code>strides</code> 속성은 읽기전용으로 직접적으로 변경할 수는 없다. 하지만, 함수를 넘파이 라이브러리 모듈에서 <code>as_strided</code> 함수를 사용할 수 있다:</p>
+<pre><code>&gt;&gt;&gt; a1 = np.lib.stride_tricks.as_strided(a, strides=(4, 1), shape=(2,4))
+&gt;&gt;&gt; a1
+array([[0, 1, 2, 3],
+       [4, 5, 6, 7]], dtype=uint8)</code></pre>
+<p>마찬가지로, 두번째 예제를 다음 코드로 재현할 수 있다:</p>
+<pre><code>&gt;&gt;&gt; a2 = np.lib.stride_tricks.as_strided(a, strides=(2, 1), shape=(3,4))
+&gt;&gt;&gt; a2
+array([[0, 1, 2, 3],
+       [2, 3, 4, 5],
+       [4, 5, 6, 7]], dtype=uint8)</code></pre>
+<p>두번째 경우에, 동일한 데이터가 두번 나타남에 주목한다. 그렇다고 해서 추가 메모리 공간을 소모하지는 않는다 – 배열 세개 모두 동일한 메모리 블록을 공유한다:</p>
+<pre><code>&gt;&gt;&gt; a[2] = 100
+&gt;&gt;&gt; a1
+array([[  0,   1, 100,   3],
+       [  4,   5,   6,   7]], dtype=uint8)
+&gt;&gt;&gt; a2
+array([[  0,   1, 100,   3],
+       [100,   3,   4,   5],
+       [  4,   5,   6,   7]], dtype=uint8)</code></pre>
+<section class="challenge panel panel-success">
+<div class="panel-heading">
+<h2 id="전치transpose"><span class="glyphicon glyphicon-pencil"></span>전치(Transpose)</h2>
+</div>
+<div class="panel-body">
+<p>난수를 원소로 갖는 <span class="math inline">\(3 \times 4\)</span> 배열을 생성한다. 배열의 다양한 속성을 살펴본다: <code>x.shape</code>, <code>x.ndim</code>, <code>x.dtype</code>, <code>x.strides</code>. 배열에 관해서 각 속성이 어떤 정보를 제시하고 있는가?</p>
+<p><code>x.T</code> strides 속성을 비교하라. <code>x.T</code>는 무엇이고 새로운 strides를 설명할 수 있는가?</p>
+</div>
+</section>
+<section class="challenge panel panel-success">
+<div class="panel-heading">
+<h2 id="가장-빠른-인덱스"><span class="glyphicon glyphicon-pencil"></span>가장 빠른 인덱스</h2>
+</div>
+<div class="panel-body">
+<p><code>A = np.random.rand(10, 100000)</code> 배열 행과 열에 대해 합을 구하는데 소요되는 시간을 비교하라. 차이가 나는 것을 어떻게 설명할 수 있는가? (<em>힌트:</em> 실행시간을 측정하는데, ipython에 있는 <code>%timeit</code>을 사용하라)</p>
+</div>
+</section>
+<section class="challenge panel panel-success">
+<div class="panel-heading">
+<h2 id="슬라이딩-윈도우"><span class="glyphicon glyphicon-pencil"></span>슬라이딩 윈도우</h2>
+</div>
+<div class="panel-body">
+<p><code>as_strided</code> 함수를 사용해서 1차원 배열에 대한 슬라이드 윈도우 뷰를 생성한다.</p>
+<pre><code>def sliding_window(arr, size=2):
+    &quot;&quot;&quot;Produce an array of sliding window views of `arr`
+    
+    Parameters
+    ----------
+    arr : 1D array, shape (N,)
+        The input array.
+    size : int, optional
+        The size of the sliding window.
+        
+    Returns
+    -------
+    arr_slide : 2D array, shape (N - size - 1, size)
+        The sliding windows of size `size` of `arr`.
+        
+    Examples
+    --------
+    &gt;&gt;&gt; a = np.array([0, 1, 2, 3])
+    &gt;&gt;&gt; sliding_window(a, 2)
+    array([[0, 1],
+           [1, 2],
+           [2, 3]])
+    &quot;&quot;&quot;
+    return arr  # fix this</code></pre>
+</div>
+</section>
+<section class="challenge panel panel-success">
+<div class="panel-heading">
+<h2 id="포트란-방식-혹은-c언어-방식-순서"><span class="glyphicon glyphicon-pencil"></span>포트란 방식 혹은 C언어 방식 순서?</h2>
+</div>
+<div class="panel-body">
+<p><code>numpy</code> 함수 <code>order</code> 키워드를 통해 2차원 혹은 다차원 배열이 메모리에 저장되는 방식을 결정한다. 만약 순서차례가 <code>C</code>로 지정되면, 배열은 C-인접 순서(last index varies the fastest)가 된다. 만약 순서차례가 <code>F</code>로 지정되면, 포트란-인접 차례(first index varies the fastest)가 된다. 2차원 배열은 메모리에 어떤 순서로 저장될까? (<em>힌트:</em> <code>np.ravel(x, order='A')</code>을 사용해서 검사한다).</p>
+</div>
+</section>
+<section class="challenge panel panel-success">
+<div class="panel-heading">
+<h2 id="브로드캐스팅-재방문"><span class="glyphicon glyphicon-pencil"></span>브로드캐스팅 재방문</h2>
+</div>
+<div class="panel-body">
+<p>아래 예제를 사용해서 브로드캐스팅이 내부적으로 동작하는 방식을 설명한다. 브로드캐스팅 다음에 <code>x</code>와 <code>y</code> shape와 stride는 어떻게 되는가? 다음 예제에 <code>np.broadcast_arrays</code>을 사용해서 검증한다. 두 배열에 대해 <code>strides</code> 와 <code>shape</code> 속성을 살펴본다.</p>
+<pre><code>x = np.random.rand(5, 10)
+y = np.random.rand(10)
+z = x + y
+
+xb, yb = np.broadcast_arrays(x, y)</code></pre>
+</div>
+</section>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/paris-swc/advanced-numpy-lesson">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="http://software-carpentry.org/v5/js/jquery-1.9.1.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>
