@@ -24,7 +24,7 @@ title: 고급 넘파이(Numpy)
 |3. [인덱스](02-indexing-kr.html)            | 3. [Indexing](02-indexing.html) |
 |4. [브로드캐스트](03-broadcasting-kr.html)    | 4. [Broadcasting](03-broadcasting.html) |
 |5. [배열 컨테이너](04-container-kr.html)      | 5. [Array container](04-container.html) |
-|6. [사례 K-평균](05-kmeans.html)        | 6. [Case study K-means](05-kmeans.html) |
+|6. [사례 K-평균](05-kmeans-kr.html)        | 6. [Case study K-means](05-kmeans.html) |
 
  
 ## 추가 학습교재       
